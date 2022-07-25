@@ -4,13 +4,13 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { ListComponent } from './usingViewChildren/list/list.component';
-import { ItemComponent } from './usingViewChildren/list/item/item.component';
+import { OverlayComponent } from './common/overlay/overlay.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ListComponent,
-    ItemComponent
+    OverlayComponent,
   ],
   imports: [
     BrowserModule,

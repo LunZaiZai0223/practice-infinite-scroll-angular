@@ -2,8 +2,10 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   OnDestroy,
   OnInit,
+  Output,
   QueryList,
   ViewChild,
   ViewChildren,
@@ -18,12 +20,14 @@ import { Airlines } from '../../interfaces/Airline.model';
   styleUrls: ['./list.component.scss'],
 })
 export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChildren('scrollChild') theLastScrollChild!: QueryList<ElementRef>;
+  @ViewChildren('scrollChild', { read: ElementRef }) theLastScrollChild!: QueryList<ElementRef>;
   @ViewChild('anchor') anchor!: ElementRef<HTMLElement>;
+  @Output() emitToggleIsFetching: EventEmitter<boolean> = new EventEmitter();
 
   airlineList: Airlines[] = [];
   currentPage: number = 0;
   apiPage: number = 0;
+  currentObservedElement: any = null;
 
   private observer!: IntersectionObserver;
   private listSubscription: Subscription = new Subscription();
@@ -31,15 +35,15 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private _airlineService: AirlineServiceService) {}
 
   ngOnInit(): void {
+    this.toggleIsFetching(true);
     this.fetchAirlineData();
   }
 
   ngAfterViewInit(): void {
     this.theLastScrollChild.changes.subscribe(list => {
-      console.log(list);
       if (list.last) {
-        console.log(list.last.nativeElement);
-        this.observer.observe(list.last.nativeElement);
+        this.currentObservedElement = list.last.nativeElement;
+        this.observer.observe(this.currentObservedElement);
       }
     });
 
@@ -52,7 +56,10 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private fetchAirlineData(page?: number): void {
     this.listSubscription = this._airlineService.fetchAirline(page).subscribe(data => {
+      this.currentPage += 1;
       this.setAirlineList(this.getFlattenedData(data.data));
+      this.apiPage = data.totalPages;
+      this.toggleIsFetching(false);
     });
   }
 
@@ -66,19 +73,32 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private setAirlineList(flattenedData: Airlines[]): void {
-    this.airlineList = flattenedData;
+    this.airlineList = [...this.airlineList, ...flattenedData];
   }
 
   private initObserver(): void {
     const config = {
       root: this.anchor.nativeElement,
-      rootMargin: '0px 0px 50% 0px',
+      rootMargin: '0px',
       threshold: 0,
     };
 
-    console.log(config);
     this.observer = new IntersectionObserver(([entry]) => {
-      console.log(entry);
+      if (entry.isIntersecting) {
+        this.observerCallback();
+      }
     }, config);
+  }
+
+  private observerCallback(): void {
+    this.observer.unobserve(this.currentObservedElement);
+    if (this.currentPage < this.apiPage) {
+      this.toggleIsFetching(true);
+      this.fetchAirlineData();
+    }
+  }
+
+  private toggleIsFetching(state: boolean): void {
+    this.emitToggleIsFetching.emit(state);
   }
 }

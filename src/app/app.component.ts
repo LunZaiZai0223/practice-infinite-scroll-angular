@@ -7,4 +7,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'practice-infinite-scroll-angular';
+  isFetchData: boolean = true;
+
+  toggledIsFetching(state: boolean): void {
+    this.isFetchData = state;
+  }
 }
