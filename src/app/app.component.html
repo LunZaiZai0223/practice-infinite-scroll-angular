@@ -1,6 +1,12 @@
 <section>
   <app-overlay *ngIf="isFetchData"></app-overlay>
   <div class="container">
-    <app-list (emitToggleIsFetching)="toggledIsFetching($event)"></app-list>
+    <!-- Start: 透過 viewChildren.changes() 訂閱改動，達到更新被觀察 element -->
+    <!-- <app-list (emitToggleIsFetching)="toggledIsFetching($event)"></app-list> -->
+    <!-- End: 透過 viewChildren.changes() 訂閱改動，達到更新被觀察 element -->
+
+    <!-- Start: 寫死被觀察的 element，再透過取得 API subscribe() 更新資料及重新觀察 element -->
+    <app-list-two (emitToggleIsFetching)="toggledIsFetching($event)"></app-list-two>
+    <!-- End: 寫死被觀察的 element，再透過取得 API subscribe() 更新資料及重新觀察 element -->
   </div>
 </section>
