@@ -83,10 +83,22 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
       threshold: 0,
     };
 
-    this.observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        this.observerCallback();
-      }
+    // 結構版本
+    // this.observer = new IntersectionObserver(([entry]) => {
+    //   console.log(entry);
+    //   if (entry.isIntersecting) {
+    //     this.observerCallback();
+    //   }
+    // }, config);
+
+    // 未解構版本
+    this.observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.observerCallback();
+          (<HTMLElement>entry.target).style.color = 'green';
+        }
+      });
     }, config);
   }
 
