@@ -52,6 +52,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.listSubscription.unsubscribe();
+    this.observer.disconnect();
   }
 
   private fetchAirlineData(page?: number): void {

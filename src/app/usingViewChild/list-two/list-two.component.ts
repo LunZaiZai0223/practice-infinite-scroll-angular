@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { Airlines } from 'src/app/interfaces/Airline.model';
 import { AirlineServiceService } from 'src/app/services/airline-service.service';
 
@@ -7,7 +7,7 @@ import { AirlineServiceService } from 'src/app/services/airline-service.service'
   templateUrl: './list-two.component.html',
   styleUrls: ['./list-two.component.scss'],
 })
-export class ListTwoComponent implements OnInit, AfterViewInit {
+export class ListTwoComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('wrapper') wrapperElement!: ElementRef<HTMLElement>;
   @ViewChild('anchor') anchor!: ElementRef<HTMLElement>;
   @Output() emitToggleIsFetching: EventEmitter<boolean> = new EventEmitter();
@@ -33,6 +33,10 @@ export class ListTwoComponent implements OnInit, AfterViewInit {
     console.log(this.anchor);
     this.initIntersectionObserver();
     this.observer.observe(this.anchor.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.observer.disconnect();
   }
 
   private fetchData(): void {
